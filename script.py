@@ -1,5 +1,18 @@
-import os, sys
+import os, sys, re
 from PIL import Image
+
+
+def get_version():
+    with open("../setup.py", "r") as f:
+        setup_content = f.read()
+
+    version_match = re.search(r"version=['\"]([^'\"]+)['\"]", setup_content)
+
+    if version_match:
+        version = version_match.group(1)
+    else:
+        raise RuntimeError("Version information not found.")
+    return f'{version}'
 
 
 def open_directory(path):
