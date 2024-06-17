@@ -310,7 +310,7 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    QApplication.setWindowIcon(QIcon('logo.png'))
+    QApplication.setWindowIcon(QIcon('ico/logo.png'))
     w = MainWindow()
     w.show()
     sys.exit(app.exec())
