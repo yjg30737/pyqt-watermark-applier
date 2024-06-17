@@ -3,7 +3,7 @@ from PIL import Image
 
 
 def get_version():
-    with open("../setup.py", "r") as f:
+    with open("setup.py", "r") as f:
         setup_content = f.read()
 
     version_match = re.search(r"version=['\"]([^'\"]+)['\"]", setup_content)
