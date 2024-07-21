@@ -4,6 +4,7 @@ import os, sys
 from fileListWidget import FindPathWidget
 from notifier import NotifierWidget
 from script import WatermarkSetter, open_directory
+from constants import APP_ICON, EXTENSIONS, DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE
 
 script_path = os.path.abspath(__file__)
 
@@ -22,7 +23,7 @@ from PyQt5.QtGui import QFont, QIcon
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)  # HighDPI support
 
-QApplication.setFont(QFont('Arial', 12))
+QApplication.setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE))
 
 
 class Thread(QThread):
@@ -199,7 +200,7 @@ class MainWindow(QMainWindow):
         menu.addAction(action)
 
         tray_icon = QSystemTrayIcon(app)
-        tray_icon.setIcon(self.style().standardIcon(QStyle.SP_ComputerIcon))  # Set your own icon here
+        tray_icon.setIcon(QIcon(APP_ICON))
         tray_icon.activated.connect(self.__activated)
 
         tray_icon.setContextMenu(menu)
@@ -213,7 +214,7 @@ class MainWindow(QMainWindow):
     def __addToList(self, dirname):
         self.__listWidget.clear()
         filenames = [os.path.join(dirname, filename) for filename in os.listdir(dirname)]
-        filenames = [filename for filename in filenames if os.path.splitext(filename)[-1] in ['.png', '.jpg', '.jpeg', 'bmp']]
+        filenames = [filename for filename in filenames if os.path.splitext(filename)[-1] in EXTENSIONS]
         self.__src_dirname = dirname
         self.__listWidget.addItems(filenames)
         self.__checkRunBtnEnabled()
@@ -310,7 +311,7 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    QApplication.setWindowIcon(QIcon('logo.png'))
+    QApplication.setWindowIcon(QIcon(APP_ICON))
     w = MainWindow()
     w.show()
     sys.exit(app.exec())
