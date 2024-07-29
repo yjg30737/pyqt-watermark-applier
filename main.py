@@ -1,11 +1,7 @@
-import os, sys
+import os
+import sys
 
 # Get the absolute path of the current script file
-from fileListWidget import FindPathWidget
-from notifier import NotifierWidget
-from script import WatermarkSetter, open_directory
-from constants import APP_ICON, EXTENSIONS, DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE
-
 script_path = os.path.abspath(__file__)
 
 # Get the root directory by going up one level from the script directory
@@ -14,14 +10,19 @@ project_root = os.path.dirname(os.path.dirname(script_path))
 sys.path.insert(0, project_root)
 sys.path.insert(0, os.getcwd())  # Add the current directory as well
 
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QApplication, QListWidget, QVBoxLayout, QWidget, QGroupBox, \
-    QFormLayout, QSpinBox, QCheckBox, QComboBox, QDoubleSpinBox, QSystemTrayIcon, QAction, QMenu, QStyle, QMessageBox, \
-    QLineEdit
-from PyQt5.QtCore import Qt, QCoreApplication, QThread, QSettings
-from PyQt5.QtGui import QFont, QIcon
+from PySide6.QtWidgets import QMainWindow, QPushButton, QApplication, QListWidget, QVBoxLayout, QWidget, QGroupBox, \
+    QFormLayout, QSpinBox, QCheckBox, QComboBox, QDoubleSpinBox, QSystemTrayIcon, QMenu, QMessageBox
+from PySide6.QtCore import QThread, QSettings
+from PySide6.QtGui import QFont, QIcon, QAction
 
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)  # HighDPI support
+from fileListWidget import FindPathWidget
+from widgets.notifier import NotifierWidget
+from script import WatermarkSetter, open_directory
+
+from aboutDialog import AboutDialog
+from widgets.script import goPayPal, goBuyMeCoffee
+
+from constants import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, APP_ICON, EXTENSIONS, ICON_CLOSE
 
 QApplication.setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE))
 
@@ -67,7 +68,7 @@ class MainWindow(QMainWindow):
         self.__dst_dirname = ''
         self.__watermark_filename = ''
 
-        self.__settings_ini = QSettings('settings.ini', QSettings.IniFormat)
+        self.__settings_ini = QSettings('settings.ini', QSettings.Format.IniFormat)
 
         if not self.__settings_ini.contains('opacity'):
             self.__settings_ini.setValue('opacity', 0.0)
@@ -185,15 +186,75 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(mainWidget)
 
+        self.__setActions()
+        self.__setMenuBar()
         self.__setTrayMenu()
         QApplication.setQuitOnLastWindowClosed(False)
+
+    def __setActions(self):
+        self.__langAction = QAction()
+
+        # menu action
+        self.__exitAction = QAction('Exit', self)
+        self.__exitAction.triggered.connect(self.close)
+
+        self.__aboutAction = QAction('About...', self)
+        self.__aboutAction.triggered.connect(self.__showAboutDialog)
+
+        self.__paypalAction = QAction('Paypal', self)
+        self.__paypalAction.triggered.connect(goPayPal)
+
+        self.__buyMeCoffeeAction = QAction('Buy me a coffee!', self)
+        self.__buyMeCoffeeAction.triggered.connect(goBuyMeCoffee)
+
+    def __showAboutDialog(self):
+        aboutDialog = AboutDialog()
+        aboutDialog.exec()
+
+    # def __beforeClose(self):
+    #     if self.__settingsParamContainer.do_not_ask_again:
+    #         app = QApplication.instance()
+    #         app.quit()
+    #     else:
+    #         # Show a message box to confirm the exit or cancel or running in the background
+    #         dialog = DoNotAskAgainDialog(self.__settingsParamContainer.do_not_ask_again)
+    #         dialog.doNotAskAgainChanged.connect(self.__doNotAskAgainChanged)
+    #         reply = dialog.exec()
+    #         if dialog.isCancel():
+    #             return True
+    #         else:
+    #             if reply == QDialog.DialogCode.Accepted:
+    #                 app = QApplication.instance()
+    #                 app.quit()
+    #             elif reply == QDialog.DialogCode.Rejected:
+    #                 self.close()
+
+    def __setMenuBar(self):
+        menubar = self.menuBar()
+
+        # create the "File" menu
+        fileMenu = QMenu('File', self)
+        fileMenu.addAction(self.__exitAction)
+        menubar.addMenu(fileMenu)
+
+        # create the "Help" menu
+        helpMenu = QMenu('Help', self)
+        menubar.addMenu(helpMenu)
+
+        helpMenu.addAction(self.__aboutAction)
+
+        donateMenu = QMenu('Donate', self)
+        donateMenu.addAction(self.__paypalAction)
+        donateMenu.addAction(self.__buyMeCoffeeAction)
+
+        menubar.addMenu(donateMenu)
 
     def __setTrayMenu(self):
         # background app
         menu = QMenu()
 
         action = QAction("Quit", self)
-        action.setIcon(QIcon('ico/close.svg'))
+        action.setIcon(QIcon(ICON_CLOSE))
 
         action.triggered.connect(app.quit)
 
@@ -208,7 +269,7 @@ class MainWindow(QMainWindow):
         tray_icon.show()
 
     def __activated(self, reason):
-        if reason == QSystemTrayIcon.DoubleClick:
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self.show()
 
     def __addToList(self, dirname):
@@ -280,12 +341,8 @@ class MainWindow(QMainWindow):
             'watermark_type': self.__watermark_type,
         }
         self.__t = Thread(thread_arg, self.__watermark_filename, self.__src_dirname, self.__dst_dirname)
-        self.__t.started.connect(self.__started)
         self.__t.finished.connect(self.__finished)
         self.__t.start()
-
-    def __started(self):
-        print('started')
 
     def __finished(self):
         if not self.isVisible():
@@ -299,8 +356,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, e):
         reply = QMessageBox.question(self, 'Close Application',
                                      "Would you like to run the application in the background?",
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
             e.accept()
         else:
             QApplication.exit()

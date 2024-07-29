@@ -20,6 +20,7 @@ setup(
     long_description_content_type='text/markdown',
     long_description=long_description,
     install_requires=[
-        'PyQt5>=5.14',
+        'PySide6',
+        'pillow'
     ],
 )

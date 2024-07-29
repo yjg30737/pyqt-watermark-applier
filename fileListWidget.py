@@ -1,9 +1,9 @@
 import subprocess
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QHBoxLayout, QLabel, QWidget, QAction, \
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QPushButton, QFileDialog, QHBoxLayout, QLabel, QWidget, \
     QMenu, QLineEdit
+from PySide6.QtGui import QAction
 
 
 class FindPathLineEdit(QLineEdit):
@@ -14,7 +14,7 @@ class FindPathLineEdit(QLineEdit):
     def __initUi(self):
         self.setMouseTracking(True)
         self.setReadOnly(True)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.__prepareMenu)
 
     def mouseMoveEvent(self, e):
@@ -45,8 +45,8 @@ class FindPathLineEdit(QLineEdit):
 
 
 class FindPathWidget(QWidget):
-    findClicked = pyqtSignal()
-    added = pyqtSignal(str)
+    findClicked = Signal()
+    added = Signal(str)
 
     def __init__(self, default_filename: str = ''):
         super().__init__()
@@ -100,7 +100,7 @@ class FindPathWidget(QWidget):
 
     def __find(self):
         if self.isForDirectory():
-            filename = QFileDialog.getExistingDirectory(self, 'Open Directory', '', QFileDialog.ShowDirsOnly)
+            filename = QFileDialog.getExistingDirectory(self, 'Open Directory', '', QFileDialog.Option.ShowDirsOnly)
             if filename:
                 pass
             else:

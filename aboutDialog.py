@@ -1,17 +1,15 @@
 import datetime
-
-from PyQt5.QtWidgets import QDialog, QApplication, QHBoxLayout, QLabel, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QPixmap, QDesktopServices
-
-from script import get_version
-
-
 import os
 
-from qtpy.QtGui import QPainter
-from qtpy.QtSvg import QSvgRenderer
-from qtpy.QtWidgets import QLabel
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QPixmap, QDesktopServices, QPainter
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QWidget, QVBoxLayout
+
+from constants import COMPANY_LOGO, APP_NAME, LICENSE, __author__, __version__, FRAMEWORK, CONTACT, ICON_DISCORD, \
+    ICON_GITHUB, GITHUB_URL, DISCORD_URL
+from widgets.linkLabel import LinkLabel
+
 
 class SvgLabel(QLabel):
     def __init__(self):
@@ -41,7 +39,7 @@ class ClickableLabel(SvgLabel):
         self.__url = url
 
     def mouseReleaseEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
+        if QMouseEvent.button() == Qt.MouseButton.LeftButton:
             QDesktopServices.openUrl(QUrl(self.__url))
 
 
@@ -52,42 +50,43 @@ class AboutDialog(QDialog):
 
     def __initUi(self):
         self.setWindowTitle("About")
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.WindowCloseButtonHint)
 
+        p = QPixmap(COMPANY_LOGO)
         logoImg = QLabel()
-        logoImg.setPixmap(QPixmap("yjgsoft_logo.png"))
+        logoImg.setPixmap(p)
 
         descWidget1 = QLabel()
         descWidget1.setText(f'''
-                <h1>Watermark Applier</h1>
-                Software Version {get_version()}<br/><br/>
-                © 2023-{datetime.datetime.now().year} Used under the MIT License.<br/> 
-                Copyright (c) {datetime.datetime.now().year} YJGSoft.<br/>
+                <h1>{APP_NAME}</h1>
+                Software Version {__version__}<br/><br/>
+                © 2023-{datetime.datetime.now().year} Used under the {LICENSE} License.<br/> 
+                Copyright (c) {datetime.datetime.now().year} {__author__}.<br/>
 ''')
 
         descWidget2 = QLabel()
         descWidget2.setText(f'''
-                Contact: yjg30737@gmail.com<br/>
-                <p>Powered by PyQt5</p>
+                Contact: {CONTACT}<br/>
+                <p>Powered by {FRAMEWORK}</p>
                 ''')
 
-        descWidget1.setAlignment(Qt.AlignTop)
-        descWidget2.setAlignment(Qt.AlignTop)
+        descWidget1.setAlignment(Qt.AlignmentFlag.AlignTop)
+        descWidget2.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.__githubLbl = ClickableLabel()
-        self.__githubLbl.setSvgFile('ico/github.svg')
-        self.__githubLbl.setUrl('https://github.com/yjg30737/pyqt-openai')
+        self.__githubLbl.setSvgFile(ICON_GITHUB)
+        self.__githubLbl.setUrl(GITHUB_URL)
         self.__githubLbl.setFixedSize(22, 22)
 
         self.__discordLbl = ClickableLabel()
-        self.__discordLbl.setSvgFile('ico/discord.svg')
-        self.__discordLbl.setUrl('https://discord.gg/cHekprskVE')
+        self.__discordLbl.setSvgFile(ICON_DISCORD)
+        self.__discordLbl.setUrl(DISCORD_URL)
         self.__discordLbl.setFixedSize(22, 19)
 
         lay = QHBoxLayout()
         lay.addWidget(self.__githubLbl)
         lay.addWidget(self.__discordLbl)
-        lay.setAlignment(Qt.AlignLeft)
+        lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         lay.setContentsMargins(0, 0, 0, 0)
 
         linkWidget = QWidget()
@@ -106,12 +105,3 @@ class AboutDialog(QDialog):
         lay.addWidget(rightWidget)
 
         self.setLayout(lay)
-
-
-if __name__ == "__main__":
-    import sys
-
-    app = QApplication(sys.argv)
-    w = AboutDialog()
-    w.show()
-    sys.exit(app.exec())

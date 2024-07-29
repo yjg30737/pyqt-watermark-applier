@@ -1,29 +1,32 @@
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QTimer, QPropertyAnimation
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy, QPushButton, \
+import os
+import posixpath
+
+from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QPropertyAnimation
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy, QPushButton, \
     QApplication
+from constants import SRC_DIR, ICON_CLOSE
 
 
 class NotifierWidget(QWidget):
-    doubleClicked = pyqtSignal()
+    doubleClicked = Signal()
 
     def __init__(self, informative_text='', detailed_text=''):
         super().__init__()
-        self.__timerVal = 5000
+        self.__timerVal = 10000
         self.__initUi(informative_text, detailed_text)
 
     def __initUi(self, informative_text='', detailed_text=''):
-        self.setFixedSize(250, 150)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.SubWindow)
+        self.setFixedSize(400, 300)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.SubWindow)
 
         self.__informativeTextLabel = QLabel(informative_text) if informative_text else QLabel('Informative')
-        self.__informativeTextLabel.setFont(QFont('Arial', 15, QFont.Bold))
         self.__detailedTextLabel = QLabel(detailed_text) if detailed_text else QLabel('Detailed')
 
         closeBtn = QPushButton()
         closeBtn.clicked.connect(self.close)
-        closeBtn.setIcon(QIcon('ico/close.svg'))
+        close_icon_path = os.path.join(SRC_DIR, ICON_CLOSE).replace(os.sep, posixpath.sep)
+        closeBtn.setIcon(QIcon(close_icon_path))
 
         lay = QHBoxLayout()
         lay.setContentsMargins(0, 0, 0, 0)
@@ -32,7 +35,7 @@ class NotifierWidget(QWidget):
         self.__btnWidget.setLayout(lay)
 
         lay = QHBoxLayout()
-        lay.setAlignment(Qt.AlignTop | Qt.AlignRight)
+        lay.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
         lay.addWidget(closeBtn)
         lay.setContentsMargins(0, 0, 0, 0)
 
@@ -56,14 +59,14 @@ class NotifierWidget(QWidget):
         self.setLayout(lay)
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
+        if e.key() == Qt.Key.Key_Escape:
             self.close()
 
         return super().keyPressEvent(e)
 
     def addWidgets(self, widgets: list):
         for widget in widgets:
-            widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+            widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
             self.__btnWidget.layout().addWidget(widget)
 
     def show(self) -> None:
