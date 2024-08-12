@@ -1,5 +1,9 @@
-import os, sys, re
+import os
+import re
+
 from PIL import Image
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QDesktopServices
 
 
 def get_version():
@@ -16,14 +20,7 @@ def get_version():
 
 
 def open_directory(path):
-    if sys.platform.startswith('darwin'):  # macOS
-        os.system('open "{}"'.format(path))
-    elif sys.platform.startswith('win'):  # Windows
-        os.system('start "" "{}"'.format(path))
-    elif sys.platform.startswith('linux'):  # Linux
-        os.system('xdg-open "{}"'.format(path))
-    else:
-        print("Unsupported operating system.")
+    QDesktopServices.openUrl(QUrl(path))
 
 
 class WatermarkSetter:
@@ -152,10 +149,11 @@ class WatermarkSetter:
         return cur_watermark
 
 # import os
-#
-# src_dirname = 'example'
+
+# src_dirname = 'sample'
 # dst_dirname = 'dst'
 #
 # setter = WatermarkSetter()
 # setter.set_watermark('watermark.png')
-# setter.apply_watermark_from_directory(src_dirname, 'dst2')
+# setter.set_watermark_opacity(64.6)
+# setter.apply_watermark_from_directory(src_dirname, dst_dirname)
