@@ -15,5 +15,7 @@ Compare image files in "sample" folder and those in "result" folder.
 2. pip install -r requirements.txt
 3. python main.py
 
+**Or you can install this with [installer](https://github.com/yjg30737/pyqt-watermark-applier/releases/tag/v1.0.0) here 🤗**
+
 ## Preview
 ![image](https://github.com/yjg30737/pyqt-watermark-applier/assets/55078043/5c41d144-8baa-4b61-9c55-73903c03f7cb)
