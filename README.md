@@ -7,7 +7,7 @@ After selecting the watermark image file you want, you can apply the watermark t
 Compare image files in "sample" folder and those in "result" folder.
 
 ## Requirements
-* PyQt5 >= 5.14
+* PySide6
 * pillow
 
 ## How to Run
